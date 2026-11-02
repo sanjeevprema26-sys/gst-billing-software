@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GST Billing Software</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Business Suite</p>
+          <h1>GST Billing Software</h1>
+        </div>
+        <div class="summary-chip">
+          <span>Total Sales</span>
+          <strong>₹{{ '%.2f'|format(total_sales) }}</strong>
+        </div>
+      </header>
+
+      <section class="grid dashboard">
+        <div class="card">
+          <h3>Customers</h3>
+          <p>{{ customers|length }}</p>
+        </div>
+        <div class="card">
+          <h3>Products</h3>
+          <p>{{ products|length }}</p>
+        </div>
+        <div class="card">
+          <h3>Invoices</h3>
+          <p>{{ invoices|length }}</p>
+        </div>
+      </section>
+
+      <section class="grid two-column">
+        <div class="card">
+          <h2>Add Customer</h2>
+          <form action="{{ url_for('add_customer') }}" method="POST">
+            <div class="field-group">
+              <label>Name</label>
+              <input type="text" name="name" required />
+            </div>
+            <div class="field-group">
+              <label>Phone</label>
+              <input type="text" name="phone" />
+            </div>
+            <div class="field-group">
+              <label>GSTIN</label>
+              <input type="text" name="gstin" />
+            </div>
+            <div class="field-group">
+              <label>Address</label>
+              <textarea name="address" rows="3"></textarea>
+            </div>
+            <button type="submit">Save Customer</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Add Product</h2>
+          <form action="{{ url_for('add_product') }}" method="POST">
+            <div class="field-group">
+              <label>Name</label>
+              <input type="text" name="name" required />
+            </div>
+            <div class="field-group">
+              <label>HSN</label>
+              <input type="text" name="hsn" />
+            </div>
+            <div class="field-group inline-fields">
+              <div>
+                <label>Rate</label>
+                <input type="number" step="0.01" name="rate" required />
+              </div>
+              <div>
+                <label>GST %</label>
+                <input type="number" step="0.01" name="gst_rate" required />
+              </div>
+            </div>
+            <button type="submit">Save Product</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="card invoice-builder">
+        <h2>Create Invoice</h2>
+        <form action="{{ url_for('create_invoice') }}" method="POST">
+          <div class="field-group select-inline">
+            <label>Customer</label>
+            <select name="customer_id" required>
+              <option value="">Select customer</option>
+              {% for customer in customers %}
+              <option value="{{ customer['id'] }}">{{ customer['name'] }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="invoice-items" id="items-container">
+            <div class="invoice-row">
+              <select name="product_id" required>
+                <option value="">Select product</option>
+                {% for product in products %}
+                <option value="{{ product['id'] }}">{{ product['name'] }} (₹{{ product['rate'] }})</option>
+                {% endfor %}
+              </select>
+              <input type="number" name="quantity" min="1" step="0.01" placeholder="Qty" required />
+            </div>
+            <div class="invoice-row">
+              <select name="product_id">
+                <option value="">Select product</option>
+                {% for product in products %}
+                <option value="{{ product['id'] }}">{{ product['name'] }} (₹{{ product['rate'] }})</option>
+                {% endfor %}
+              </select>
+              <input type="number" name="quantity" min="1" step="0.01" placeholder="Qty" />
+            </div>
+          </div>
+
+          <button type="button" class="secondary" id="add-row">Add Item</button>
+
+          <div class="field-group">
+            <label>Notes</label>
+            <textarea name="notes" rows="3"></textarea>
+          </div>
+
+          <button type="submit">Generate Invoice</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Recent Invoices</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for invoice in invoices %}
+            <tr>
+              <td>{{ invoice['invoice_no'] }}</td>
+              <td>{{ invoice['customer_name'] }}</td>
+              <td>{{ invoice['invoice_date'] }}</td>
+              <td>₹{{ '%.2f'|format(invoice['grand_total']) }}</td>
+              <td><a href="{{ url_for('invoice_details', invoice_id=invoice['id']) }}">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <div class="container invoice-page">
+      <header class="topbar invoice-header">
+        <div>
+          <p class="eyebrow">Invoice</p>
+          <h1>{{ invoice['invoice_no'] }}</h1>
+        </div>
+        <a href="{{ url_for('index') }}" class="back-link">Back to Dashboard</a>
+      </header>
+
+      <section class="card invoice-summary">
+        <div class="customer-block">
+          <h3>Bill To</h3>
+          <p><strong>{{ invoice['customer_name'] }}</strong></p>
+          <p>{{ invoice['address'] }}</p>
+          <p>{{ invoice['phone'] }}</p>
+          <p>GSTIN: {{ invoice['gstin'] }}</p>
+        </div>
+
+        <div class="meta-block">
+          <p><strong>Date:</strong> {{ invoice['invoice_date'] }}</p>
+          <p><strong>Invoice No:</strong> {{ invoice['invoice_no'] }}</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>HSN</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Taxable</th>
+              <th>GST</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td>{{ item['product_name'] }}</td>
+              <td>{{ item['hsn'] }}</td>
+              <td>{{ item['quantity'] }}</td>
+              <td>₹{{ '%.2f'|format(item['rate']) }}</td>
+              <td>₹{{ '%.2f'|format(item['taxable_amount']) }}</td>
+              <td>₹{{ '%.2f'|format(item['gst_amount']) }}</td>
+              <td>₹{{ '%.2f'|format(item['total_amount']) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card totals-card">
+        <div class="totals-row">
+          <span>Subtotal</span>
+          <strong>₹{{ '%.2f'|format(invoice['subtotal']) }}</strong>
+        </div>
+        <div class="totals-row">
+          <span>GST</span>
+          <strong>₹{{ '%.2f'|format(invoice['gst_total']) }}</strong>
+        </div>
+        <div class="totals-row grand-total">
+          <span>Grand Total</span>
+          <strong>₹{{ '%.2f'|format(invoice['grand_total']) }}</strong>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
